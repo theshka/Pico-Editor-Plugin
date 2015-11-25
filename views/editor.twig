@@ -10,18 +10,19 @@
 
 	<div id="saving">Saving...</div>
 
-	<div id="sidebar">
-		<div class="controls">
-			<a href="#" class="new btn" title="New">1</a>
-			<a href="{{ editor_url | link }}/logout" class="logout btn" title="Logout">2</a>
-            <a href="{{ base_url }}" target="_blank" class="view btn" title="View Site">5</a>
-		</div>
-		<ul class="nav">
+  <div id="sidebar">
+ 		<div class="controls">
+ 			<a href="#" class="new btn" title="New">1</a>
+			<a href="{{ editor_url }}/logout" class="logout btn" title="Logout">2</a>
+			<a href="{{ base_url }}/?admin/logout" class="logout btn" title="Logout">2</a>
+             <a href="{{ base_url }}" target="_blank" class="view btn" title="View Site">5</a>
+ 		</div>
+ 		<ul class="nav">
 		{% for page in pages %}
 			<li>
                 <a href="#" data-url="{{ page.url }}" class="post">
                     <span data-icon="3" aria-hidden="true"></span>
-                    {% if page.title %}{{ page.title }}{% else %}Untitled{% endif %}
+                    {% if page.title %}{{ page.title }}{% else %}Untitled{% endif %} - <small>{{ page.url|replace({"/?":""}) }}</small>
                 </a>
 			    <a href="{{ page.url }}" target="_blank" class="view" title="View">5</a>
 			    <a href="#" data-url="{{ page.url }}" class="delete" title="Delete">4</a></li>
@@ -45,15 +46,15 @@
 				file: {
 					name: 'epiceditor',
 					defaultContent: '',
-					autoSave: 5000
-				},
-				theme: {
-					base: '{{ base_url }}/plugins/PicoEditor/assets/epiceditor/themes/base/epiceditor.css',
-					preview: '{{ base_url }}/plugins/PicoEditor/assets/epiceditor/themes/preview/github.css',
-					editor: '{{ base_url }}/plugins/PicoEditor/assets/epiceditor/themes/editor/epic-light.css'
-				},
-				button: {
-					preview: true,
+          autoSave: 5000
+      },
+      theme: {
+					base: '/themes/base/epiceditor.css',
+					preview: '/themes/preview/github.css',
+					editor: '/themes/editor/epic-dark.css'
+      },
+      button: {
+        preview: true,
 					fullscreen: false
 				},
 				focusOnLoad: true
@@ -80,6 +81,7 @@
 							editor.importFile('epiceditor', data.content);
 							unsaved = false;
 							document.title = document.title.replace(' *', '');
+              data.file='?'+data.file;
 							$('.nav').prepend('<li><a href="#" data-url="{{ base_url }}/'+ data.file +'" class="post open"><span data-icon="3" aria-hidden="true"></span>'+ data.title +'</a><a href="{{ base_url }}/'+ data.file +'" target="_blank" class="view" title="View">5</a><a href="#" data-url="{{ base_url }}/'+ data.file +'" class="delete" title="Delete">4</a></li>')
 						}
 					}, 'json');
@@ -123,11 +125,12 @@
 			// Delete post
 			$('.nav').on('click', '.delete', function(e){
 				e.preventDefault();
-				if(!confirm('Are you sure you want to delete this file?')) return false;
+        var fileUrl = $(this).attr('data-url').replace('?', '');
+				if(!confirm('Are you sure you want to delete '+fileUrl+'?')) return false;
 				$('.nav .post').removeClass('open');
-
+        var fileUrl = $(this).attr('data-url').replace('?', '');
 				var li = $(this).parents('li');
-				var fileUrl = $(this).attr('data-url').replace('?', '');
+
 				$.post('?admin/delete', { file: fileUrl }, function(data){
 					li.remove();
 					$('#epiceditor').data('currentFile', '');
