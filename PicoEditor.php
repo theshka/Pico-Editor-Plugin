@@ -91,6 +91,7 @@ class PicoEditor extends AbstractPicoPlugin
         $this->plugin_path = dirname(__FILE__);
         $this->contentDir = $config['content_dir'];
         $this->contentExt = $config['content_ext'];
+	$this->baseUrl = $config['base_url'];
 
         //Check configuration for password
         if (isset($config['PicoEditor']['password']) &&
@@ -280,16 +281,11 @@ Template:
      */
     private function doOpen()
     {
-        /**
-        * TODO: Error when opening files that reside in a sub/folder; what is
-        * causing this, and how can it be fixed?
-        */
-
         $this->doCheckLogin();
         // check file url not blank
         $file_url = isset($_POST['file']) && $_POST['file'] ? $_POST['file'] : '';
         // get the base filename
-        $file = basename(strip_tags($file_url));
+	$file = str_replace($this->baseUrl,'',strip_tags($file_url));
         // no file requested
         if (!$file) {
             die('Open Error: Invalid file '.$file.' at the URL: '.$file_url);
